@@ -16,7 +16,7 @@ from app.services.workspace import WorkspaceDataService
 from app.ui.ascii_logo import COMPACT, SPLASH_BANNER
 
 try:
-    from textual import on
+    from textual import events, on
     from textual.app import App, ComposeResult
     from textual.containers import Horizontal, Vertical
     from textual.screen import Screen
@@ -96,6 +96,22 @@ else:
 
         def action_menu_open(self) -> None:
             self._open_selected()
+
+
+        @on(events.Key)
+        def on_main_menu_key(self, event: events.Key) -> None:
+            menu = self.query_one("#main_menu", OptionList)
+            if self.focused is not menu:
+                return
+            if event.key == "up":
+                self.action_menu_up()
+                event.stop()
+            elif event.key == "down":
+                self.action_menu_down()
+                event.stop()
+            elif event.key == "enter":
+                self.action_menu_open()
+                event.stop()
 
     class CreateCaseScreen(Screen):
         BINDINGS = [
@@ -226,6 +242,22 @@ else:
             case = self._current_case()
             if case:
                 self.app.switch_screen(WorkspaceScreen(case))
+
+
+        @on(events.Key)
+        def on_cases_key(self, event: events.Key) -> None:
+            lv = self.query_one("#cases_list", OptionList)
+            if self.focused is not lv:
+                return
+            if event.key == "up":
+                self.action_list_up()
+                event.stop()
+            elif event.key == "down":
+                self.action_list_down()
+                event.stop()
+            elif event.key == "enter":
+                self.action_open_selected()
+                event.stop()
 
         @on(OptionList.OptionHighlighted, "#cases_list")
         def list_highlighted(self) -> None:
