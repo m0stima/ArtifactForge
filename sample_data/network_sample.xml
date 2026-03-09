@@ -1,0 +1,8 @@
+<root>
+  <item>
+    <process>cmd.exe</process>
+    <remote_ip>8.8.8.8</remote_ip>
+    <remote_port>53</remote_port>
+    <timestamp>2025-01-10T09:31:00Z</timestamp>
+  </item>
+</root>
