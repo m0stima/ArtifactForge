@@ -1,4 +1,4 @@
-from app.commands.parser import CommandParser
+from commands.parser import CommandParser
 
 
 def test_cli_parser_basic():

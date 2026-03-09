@@ -27,14 +27,14 @@ python main.py --self-test
 
 ## Arquitectura
 
-- `app/core/`: configuración, logging y bootstrap de SQLite.
-- `app/models/`: entidades Pydantic/compat (`case`, `artifacts`, `timeline`, `findings`).
-- `app/repositories/`: acceso a datos (sin SQL en UI).
-- `app/services/`: discovery XML e indexación end-to-end.
-- `app/parsers/`: `BaseParser`, `ParserRegistry`, parser dedicado de Prefetch y fallback XML.
-- `app/timeline/` y `app/triage/`: construcción de eventos y heurísticas.
-- `app/commands/`: parser y dispatcher de mini CLI.
-- `app/ui/`: TUI Textual con menú principal, navegación izquierda (28%), análisis derecha (72%) y barra CLI inferior.
+- `core/`: configuración, logging y SQLite bootstrap.
+- `models/`: entidades Pydantic (case, artifacts, timeline, findings).
+- `repositories/`: acceso a datos (sin SQL en UI).
+- `services/`: discovery XML e indexación end-to-end.
+- `parsers/`: `BaseParser`, `ParserRegistry`, parser dedicado de Prefetch y fallback XML.
+- `timeline/` y `triage/`: construcción de eventos y heurísticas.
+- `commands/`: parser y dispatcher de mini CLI.
+- `ui/`: TUI Textual con menú principal, navegación izquierda (28%), análisis derecha (72%) y barra CLI inferior.
 
 ## Comandos CLI
 
@@ -46,7 +46,7 @@ Analíticos: `search`, `grep`, `filter`, `sort`, `group by`, `pivot`, `tree`, `c
 
 - El soporte profundo está implementado para Prefetch y XML genérico por tipo.
 - Algunos artefactos se detectan y clasifican como `partial` o `detected_unmapped` hasta contar con parsers dedicados.
-- En entornos sin `textual` instalado, la app cae en modo fallback por consola para evitar crash de import.
+- La UI aún usa tablas simplificadas para vista inicial.
 
 ## Roadmap
 
