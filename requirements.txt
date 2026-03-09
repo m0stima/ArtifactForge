@@ -1,0 +1,5 @@
+textual>=0.58.1
+rich>=13.7.1
+pydantic>=2.7.0
+pytest>=8.2.0
+lxml>=5.2.0
