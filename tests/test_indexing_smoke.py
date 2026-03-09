@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from app.cases.service import CaseService
-from app.core.database import Database
-from app.parsers.registry import ParserRegistry
-from app.repositories.artifact_repository import ArtifactRepository
-from app.repositories.case_repository import CaseRepository
-from app.repositories.finding_repository import FindingsRepository
-from app.repositories.timeline_repository import TimelineRepository
-from app.services.discovery import XMLDiscovery
-from app.services.indexer import IndexingService
+from cases.service import CaseService
+from core.database import Database
+from parsers.registry import ParserRegistry
+from repositories.artifact_repository import ArtifactRepository
+from repositories.case_repository import CaseRepository
+from repositories.finding_repository import FindingsRepository
+from repositories.timeline_repository import TimelineRepository
+from services.discovery import XMLDiscovery
+from services.indexer import IndexingService
 
 
 def test_indexing_pipeline(tmp_path: Path):

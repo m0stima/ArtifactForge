@@ -4,17 +4,18 @@ import argparse
 import logging
 from pathlib import Path
 
-from app.cases.service import CaseService
-from app.core.database import Database
-from app.core.logging import configure_logging
-from app.parsers.registry import ParserRegistry
-from app.repositories.artifact_repository import ArtifactRepository
-from app.repositories.case_repository import CaseRepository
-from app.repositories.finding_repository import FindingsRepository
-from app.repositories.timeline_repository import TimelineRepository
-from app.services.discovery import XMLDiscovery
-from app.services.indexer import IndexingService
-from app.ui.app import ArtifactForgeApp
+from cases.service import CaseService
+from core.config import CONFIG
+from core.database import Database
+from core.logging import configure_logging
+from parsers.registry import ParserRegistry
+from repositories.artifact_repository import ArtifactRepository
+from repositories.case_repository import CaseRepository
+from repositories.finding_repository import FindingsRepository
+from repositories.timeline_repository import TimelineRepository
+from services.discovery import XMLDiscovery
+from services.indexer import IndexingService
+from ui.app import ArtifactForgeApp
 
 
 def build_services(db_path: Path):
@@ -32,12 +33,12 @@ def build_services(db_path: Path):
         timeline_repo=timeline_repo,
         findings_repo=findings_repo,
     )
-    return db, CaseService(case_repo), case_repo, artifact_repo, timeline_repo, findings_repo, indexer, XMLDiscovery()
+    return db, CaseService(case_repo), case_repo, artifact_repo, timeline_repo, findings_repo, indexer
 
 
 def run_self_test() -> int:
     configure_logging(logging.INFO)
-    _, case_service, case_repo, artifact_repo, timeline_repo, findings_repo, indexer, _discovery = build_services(Path("selftest.db"))
+    _, case_service, case_repo, artifact_repo, timeline_repo, findings_repo, indexer = build_services(Path("selftest.db"))
     print("[OK] configuration")
     print("[OK] sqlite")
     print("[OK] parser registry")
@@ -67,8 +68,7 @@ def main() -> int:
         return run_self_test()
 
     configure_logging(logging.INFO)
-    _db, case_service, case_repo, artifact_repo, timeline_repo, findings_repo, indexer, discovery = build_services(Path("artifactforge.db"))
-    ArtifactForgeApp(case_service, case_repo, artifact_repo, timeline_repo, findings_repo, indexer, discovery).run()
+    ArtifactForgeApp().run()
     return 0
 
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.services.discovery import XMLDiscovery
+from services.discovery import XMLDiscovery
 
 
 def test_discovery_and_classification():

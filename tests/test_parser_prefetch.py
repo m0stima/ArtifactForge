@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.parsers.prefetch_parser import PrefetchParser
+from parsers.prefetch_parser import PrefetchParser
 
 
 def test_prefetch_parser_reads_rows():
