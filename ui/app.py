@@ -12,9 +12,9 @@ except Exception:  # pragma: no cover
         def run(self) -> None:
             print("Textual is not available in this environment.")
 else:
-    from app.commands.dispatcher import CommandDispatcher
-    from app.commands.parser import CommandParser
-    from app.ui.ascii_logo import COMPACT, SPLASH_BANNER
+    from commands.dispatcher import CommandDispatcher
+    from commands.parser import CommandParser
+    from ui.ascii_logo import COMPACT, SPLASH_BANNER
 
     class ArtifactForgeApp(App):
         CSS = """
