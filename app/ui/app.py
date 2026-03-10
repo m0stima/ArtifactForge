@@ -16,7 +16,7 @@ from app.services.workspace import WorkspaceDataService
 from app.ui.ascii_logo import COMPACT, SPLASH_BANNER
 
 try:
-    from textual import on
+    from textual import events, on
     from textual.app import App, ComposeResult
     from textual.containers import Horizontal, Vertical
     from textual.screen import Screen
@@ -54,22 +54,34 @@ else:
             ("menu_exit", "Exit"),
         ]
 
+        def __init__(self) -> None:
+            super().__init__()
+            self.selected_index = 0
+            self.last_key = "-"
+
         def compose(self) -> ComposeResult:
             yield Static(SPLASH_BANNER)
             yield Static(COMPACT)
-            yield Label("Main Menu (↑/↓ + Enter)", id="menu_hint")
-            yield OptionList(*[Option(label, id=item_id) for item_id, label in self.MENU_ITEMS], id="main_menu")
+            yield Label("Main Menu (↑/↓ + Enter | 1-5)", id="menu_hint")
+            yield Static("", id="main_menu")
+            yield Label("selected_index=0 last_key=-", id="menu_debug")
             yield Footer()
 
         def on_mount(self) -> None:
-            self.query_one("#main_menu", OptionList).focus()
+            self._render_menu()
+
+        def _render_menu(self) -> None:
+            lines: list[str] = []
+            for idx, (_item_id, label) in enumerate(self.MENU_ITEMS):
+                prefix = "▶" if idx == self.selected_index else " "
+                lines.append(f"{prefix} {idx + 1}. {label}")
+            self.query_one("#main_menu", Static).update("\n".join(lines))
+            self.query_one("#menu_debug", Label).update(
+                f"selected_index={self.selected_index} last_key={self.last_key}"
+            )
 
         def _open_selected(self) -> None:
-            menu = self.query_one("#main_menu", OptionList)
-            highlighted = menu.highlighted
-            if highlighted is None:
-                return
-            action = menu.get_option_at_index(highlighted).id
+            action = self.MENU_ITEMS[self.selected_index][0]
             if action == "menu_create":
                 self.app.push_screen(CreateCaseScreen())
             elif action == "menu_open":
@@ -81,19 +93,46 @@ else:
             elif action == "menu_exit":
                 self.app.exit()
 
-        @on(OptionList.OptionSelected, "#main_menu")
-        def on_selected(self) -> None:
-            self._open_selected()
-
         def action_menu_up(self) -> None:
-            self.query_one("#main_menu", OptionList).action_cursor_up()
+            self.last_key = "up"
+            self.selected_index = (self.selected_index - 1) % len(self.MENU_ITEMS)
+            self._render_menu()
 
         def action_menu_down(self) -> None:
-            self.query_one("#main_menu", OptionList).action_cursor_down()
+            self.last_key = "down"
+            self.selected_index = (self.selected_index + 1) % len(self.MENU_ITEMS)
+            self._render_menu()
 
         def action_menu_open(self) -> None:
+            self.last_key = "enter"
+            self._render_menu()
             self._open_selected()
 
+        def action_menu_shortcut(self, key: str) -> None:
+            idx = int(key) - 1
+            if 0 <= idx < len(self.MENU_ITEMS):
+                self.last_key = key
+                self.selected_index = idx
+                self._render_menu()
+                self._open_selected()
+
+        def on_key(self, event: events.Key) -> None:
+            key = event.key.lower()
+            self.last_key = key
+            if key in {"up", "cursor_up", "k", "w"}:
+                self.action_menu_up()
+                event.stop()
+            elif key in {"down", "cursor_down", "j", "s"}:
+                self.action_menu_down()
+                event.stop()
+            elif key in {"enter", "return", "kp_enter"}:
+                self.action_menu_open()
+                event.stop()
+            elif key in {"1", "2", "3", "4", "5"}:
+                self.action_menu_shortcut(key)
+                event.stop()
+            else:
+                self._render_menu()
     class CreateCaseScreen(Screen):
         BINDINGS = [
             ("escape", "app.pop_screen", "Back"),
@@ -159,7 +198,7 @@ else:
                 return
 
             status.update(f"Indexing will start. XML detected: {len(xml_files)}")
-            case = self.app.case_service.create_case(case_name, src, analyst=analyst, description=description)
+case = self.app.case_service.create_case(case_name, src, analyst=analyst, description=description)
             self.app.switch_screen(IndexingScreen(case))
 
     class OpenCaseScreen(Screen):
@@ -185,6 +224,8 @@ else:
                 return
             for case in self._cases:
                 lv.add_option(Option(case.name, id=case.id))
+            if lv.highlighted is None:
+                lv.highlighted = 0
             lv.focus()
             self._render_summary(self._cases[0])
 
@@ -221,6 +262,22 @@ else:
             case = self._current_case()
             if case:
                 self.app.switch_screen(WorkspaceScreen(case))
+
+
+        @on(events.Key)
+        def on_cases_key(self, event: events.Key) -> None:
+            lv = self.query_one("#cases_list", OptionList)
+            if self.focused is not lv:
+                return
+            if event.key == "up":
+                self.action_list_up()
+                event.stop()
+            elif event.key == "down":
+                self.action_list_down()
+                event.stop()
+            elif event.key == "enter":
+                self.action_open_selected()
+                event.stop()
 
         @on(OptionList.OptionHighlighted, "#cases_list")
         def list_highlighted(self) -> None:
@@ -341,7 +398,7 @@ else:
                 tree.append(ListItem(Label(f"- {at}"), id=f"artifact::{at}"))
 
         @on(ListView.Highlighted, "#tree")
-        def on_tree_highlighted(self, event: ListView.Highlighted) -> None:
+def on_tree_highlighted(self, event: ListView.Highlighted) -> None:
             self._open_node(event.item.id or "")
 
         @on(ListView.Selected, "#tree")
